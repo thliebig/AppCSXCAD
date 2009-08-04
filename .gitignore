@@ -10,3 +10,5 @@ object_script.*.*
 *~
 qrc_images.cpp
 localPathes.pri
+AppCSXCAD
+*.o

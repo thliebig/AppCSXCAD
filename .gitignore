@@ -1,0 +1,12 @@
+release/
+debug/
+obj/
+moc/
+.cproject
+.project
+.cdtproject
+Makefile*
+object_script.*.*
+*~
+qrc_images.cpp
+localPathes.pri

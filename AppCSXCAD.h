@@ -4,7 +4,6 @@
 #include <QtGui>
 #include "QCSXCAD.h"
 
-
 class AppCSXCAD : public QCSXCAD
 {
     Q_OBJECT

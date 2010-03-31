@@ -15,15 +15,17 @@ LIBS += ..\CSXCAD\release\CSXCAD.dll
 }
 unix { 
     INCLUDEPATH += ../CSXCAD \
-        ../QCSXCAD    
+		../QCSXCAD
     LIBS += -L../QCSXCAD -lQCSXCAD \
         -L../CSXCAD -lCSXCAD \
         -L../tinyxml -ltinyxml \
 	-L../fparser -lfparser
+QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
+QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../fparser\'
+QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../tinyxml\'
 }
 HEADERS += AppCSXCAD.h
 SOURCES += AppCSXCAD.cpp \
     main.cpp
 FORMS += 
 RESOURCES += 
-CONFIG += release

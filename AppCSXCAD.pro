@@ -21,6 +21,7 @@ unix {
         -L../tinyxml -ltinyxml \
 	-L../fparser -lfparser
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
+QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../fparser\'
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../tinyxml\'
 }

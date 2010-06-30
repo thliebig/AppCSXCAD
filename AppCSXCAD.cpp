@@ -11,6 +11,8 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save"),this,SLOT(Save()),QKeySequence(tr("Ctrl+S")));
 	FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save As"),this,SLOT(ExportGeometry()));
 	//FileMenu->addAction(QIcon(":/images/filesaveas.png"),tr("Save As.."),this,SLOT(SaveAs()));
+	QMenu *FileExportMenu = FileMenu->addMenu(tr("E&xport"));
+	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("&Povray"),this,SLOT(ExportGeometry_Povray()));
 	FileMenu->addSeparator();
 	FileMenu->addAction(QIcon(":/images/exit.png"),tr("Exit"),qApp,SLOT(quit()));
 

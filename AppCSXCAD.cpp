@@ -1,9 +1,11 @@
 #include "AppCSXCAD.h"
 
+#include "QVTKStructure.h"
+
 AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 {
 	QMenuBar* mb = menuBar();
-	QMenu *FileMenu = mb->addMenu("File");
+	QMenu *FileMenu = mb->addMenu("&File");
 
 	FileMenu->addAction(QIcon(":/images/filenew.png"),tr("New"),this,SLOT(New()),QKeySequence(tr("Ctrl+N")));
 	FileMenu->addAction(QIcon(":/images/fileopen.png"),tr("Load"),this,SLOT(ImportGeometry()),QKeySequence(tr("Ctrl+L")));
@@ -12,7 +14,8 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save As"),this,SLOT(ExportGeometry()));
 	//FileMenu->addAction(QIcon(":/images/filesaveas.png"),tr("Save As.."),this,SLOT(SaveAs()));
 	QMenu *FileExportMenu = FileMenu->addMenu(tr("E&xport"));
-	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("&Povray"),this,SLOT(ExportGeometry_Povray()));
+	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("Pov&ray"),this,SLOT(ExportGeometry_Povray()),QKeySequence(tr("Ctrl+R")));
+	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("3D view to &PNG"),this,SLOT(ExportView2Image()),QKeySequence(tr("Ctrl+P")));
 	FileMenu->addSeparator();
 	FileMenu->addAction(QIcon(":/images/exit.png"),tr("Exit"),qApp,SLOT(quit()));
 

@@ -1,7 +1,12 @@
 TEMPLATE = app
 TARGET = AppCSXCAD
 CONFIG += debug_and_release
+
+# add git revision as AppCSXCAD version
+QMAKE_CXXFLAGS += -DCSXCAD_VERSION=\\\"`git describe --tags`\\\"
+
 VERSION = 0.1.0
+
 MOC_DIR = moc
 OBJECTS_DIR = obj
 QT += core \

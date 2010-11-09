@@ -10,7 +10,7 @@ VERSION = 0.1.0
 MOC_DIR = moc
 OBJECTS_DIR = obj
 QT += core \
-    gui
+	gui xml
 win32 {
 INCLUDEPATH += ..\QCSXCAD
 LIBS += ..\QCSXCAD\release\QCSXCAD.dll
@@ -35,3 +35,5 @@ SOURCES += AppCSXCAD.cpp \
     main.cpp
 FORMS += 
 RESOURCES += 
+
+QMAKE_CXXFLAGS_DEBUG = -O0 -g

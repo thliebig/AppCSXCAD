@@ -18,6 +18,7 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("Polydata-&VTK"),this,SLOT(ExportGeometry_PolyDataVTK()));
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("STL"),this,SLOT(ExportGeometry_STL()));
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("3D view to &PNG"),this,SLOT(ExportView2Image()),QKeySequence(tr("Ctrl+P")));
+	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("&X3D"),this,SLOT(ExportGeometry_X3D()),QKeySequence(tr("Ctrl+3")));
 	FileMenu->addSeparator();
 	FileMenu->addAction(QIcon(":/images/exit.png"),tr("Exit"),qApp,SLOT(quit()));
 

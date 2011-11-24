@@ -4,6 +4,8 @@
 #include <QtGui>
 #include "QCSXCAD.h"
 
+#define __APPNAME__ "AppCSXCAD"
+
 class AppCSXCAD : public QCSXCAD
 {
     Q_OBJECT
@@ -19,6 +21,8 @@ public slots:
 	virtual void clear();
 
 protected:
+	void SaveSettings();
+	void LoadSettings();
 	QString m_filename;
 };
 

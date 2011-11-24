@@ -32,12 +32,34 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 			QMessageBox::information(this,"File Error!",tr("Can't open file: %1").arg(argList.at(1)));
 		GUIUpdate();
 	}
+
+	LoadSettings();
 }
 
 AppCSXCAD::~AppCSXCAD()
 {
-
+	SaveSettings();
 }
+
+void AppCSXCAD::SaveSettings()
+{
+	QSettings settings(__APPNAME__,__APPNAME__);
+	settings.beginGroup("MainWindow");
+	settings.setValue("Geometry",saveGeometry());
+	settings.setValue("State",saveState());
+	settings.endGroup();
+}
+
+void AppCSXCAD::LoadSettings()
+{
+	QSettings settings(__APPNAME__, __APPNAME__);
+
+	settings.beginGroup("MainWindow");
+	restoreGeometry(settings.value("Geometry").toByteArray());
+	restoreState(settings.value("State").toByteArray());
+	settings.endGroup();
+}
+
 
 bool AppCSXCAD::ReadFile(QString filename)
 {

@@ -33,6 +33,7 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 		GUIUpdate();
 	}
 
+	View3D();
 	LoadSettings();
 }
 

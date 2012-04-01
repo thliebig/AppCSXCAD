@@ -1,0 +1,11 @@
+Source: appcsxcad
+Section: contrib/science
+Priority: optional
+Maintainer: Sebastian Held <sebastian.held@gmx.de>
+Build-Depends: debhelper (>=7.0.50~), libqt4-dev, qt4-qmake, libfparser4, libtinyxml-dev, csxcad-dev, libvtk5-qt4-dev, qcsxcad-dev
+
+Package: appcsxcad
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: View CSXCAD geometries
+ Based on QCSXCAD.

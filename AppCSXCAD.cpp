@@ -1,19 +1,25 @@
 #include "AppCSXCAD.h"
 
 #include "QVTKStructure.h"
+#include "QCSXCAD_Global.h"
 
 AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 {
 	QMenuBar* mb = menuBar();
 	QMenu *FileMenu = mb->addMenu("&File");
 
-	FileMenu->addAction(QIcon(":/images/filenew.png"),tr("New"),this,SLOT(New()),QKeySequence(tr("Ctrl+N")));
+	if (QCSX_Settings.GetEdit())
+		FileMenu->addAction(QIcon(":/images/filenew.png"),tr("New"),this,SLOT(New()),QKeySequence(tr("Ctrl+N")));
 	FileMenu->addAction(QIcon(":/images/fileopen.png"),tr("Load"),this,SLOT(ImportGeometry()),QKeySequence(tr("Ctrl+L")));
 	FileMenu->addSeparator();
-	FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save"),this,SLOT(Save()),QKeySequence(tr("Ctrl+S")));
-	FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save As"),this,SLOT(ExportGeometry()));
+	if (QCSX_Settings.GetEdit())
+	{
+		FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save"),this,SLOT(Save()),QKeySequence(tr("Ctrl+S")));
+		FileMenu->addAction(QIcon(":/images/filesave.png"),tr("Save As"),this,SLOT(ExportGeometry()));
+	}
 	//FileMenu->addAction(QIcon(":/images/filesaveas.png"),tr("Save As.."),this,SLOT(SaveAs()));
 	QMenu *FileExportMenu = FileMenu->addMenu(tr("E&xport"));
+	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("CSXCAD XML"),this,SLOT(ExportGeometry()));
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("Pov&ray"),this,SLOT(ExportGeometry_Povray()),QKeySequence(tr("Ctrl+R")));
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("Polydata-&VTK"),this,SLOT(ExportGeometry_PolyDataVTK()));
 	FileExportMenu->addAction(QIcon(":/images/filesave.png"),tr("STL"),this,SLOT(ExportGeometry_STL()));
@@ -33,6 +39,10 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 		GUIUpdate();
 	}
 
+	QString title = tr("AppCSXCAD");
+	if (QCSX_Settings.GetEdit()==false)
+		title += " - " + tr("View Mode");
+	setWindowTitle(title);
 	View3D();
 	LoadSettings();
 }

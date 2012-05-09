@@ -32,10 +32,12 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	InfoMenu->addAction(tr("About"),this,SLOT(aboutQCSXCAD()));
 
 	QStringList argList=qApp->arguments();
-	if (argList.size()>=2)
+	if (argList.size()>=1)
 	{
-		if (ReadFile(argList.at(1))==false)
-			QMessageBox::information(this,"File Error!",tr("Can't open file: %1").arg(argList.at(1)));
+		QString file = argList.back();
+		if (!file.startsWith("-"))
+			if (ReadFile(file)==false)
+				QMessageBox::information(this,"File Error!",tr("Can't open file: %1").arg(file));
 		GUIUpdate();
 	}
 

@@ -32,7 +32,7 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	InfoMenu->addAction(tr("About"),this,SLOT(aboutQCSXCAD()));
 
 	QStringList argList=qApp->arguments();
-	if (argList.size()>=1)
+	if (argList.size()>1)
 	{
 		QString file = argList.back();
 		if (!file.startsWith("-"))

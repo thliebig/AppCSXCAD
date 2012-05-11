@@ -13,10 +13,10 @@ OBJECTS_DIR = obj
 QT += core gui xml
 
 win32 {
-INCLUDEPATH += ..\QCSXCAD
-LIBS += ..\QCSXCAD\release\QCSXCAD.dll
-INCLUDEPATH += ..\CSXCAD
-LIBS += ..\CSXCAD\release\CSXCAD.dll
+    INCLUDEPATH += ../QCSXCAD
+    LIBS += ../QCSXCAD/release/QCSXCAD.dll
+    INCLUDEPATH += ../CSXCAD
+    LIBS += ../CSXCAD/release/CSXCAD.dll
 }
 
 unix { 

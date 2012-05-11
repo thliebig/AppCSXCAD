@@ -5,8 +5,10 @@
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
 	//prevent that Qt changes float handling, e.g. expecting a german 1,345e+3 will fail...
 	setenv("LC_NUMERIC","C",1);
+#endif
 	QApplication a(argc, argv);
     AppCSXCAD w;
     w.show();

@@ -14,9 +14,9 @@ QT += core gui xml
 
 win32 {
     INCLUDEPATH += ../QCSXCAD
-    LIBS += ../QCSXCAD/release/QCSXCAD.dll
+    LIBS += -L../QCSXCAD/release -lQCSXCAD0
     INCLUDEPATH += ../CSXCAD
-    LIBS += ../CSXCAD/release/CSXCAD.dll
+    LIBS += -L../CSXCAD/release -lCSXCAD0
 }
 
 unix { 

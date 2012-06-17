@@ -1,30 +1,10 @@
---- AppCSXCAD.sh.orig	2012-01-09 22:30:04.743545440 +0100
-+++ AppCSXCAD.sh	2012-01-09 22:36:38.393303449 +0100
-@@ -1,17 +1,14 @@
- #!/bin/bash
+diff --git a/AppCSXCAD.sh b/AppCSXCAD.sh
+index ca45a9e..72a9365 100755
+--- a/AppCSXCAD.sh
++++ b/AppCSXCAD.sh
+@@ -12,4 +12,4 @@ export LD_LIBRARY_PATH=
+ # you need to uncomment the next line:
+ # export LIBGL_ALWAYS_INDIRECT=y
  
--DEVEL_PATH=$(dirname $0)/..
--export DEVEL_PATH
-+# unset the library search path
-+# Matlab set it to point to an old libc
-+export LD_LIBRARY_PATH=
- 
--#if [ -n "$LD_LIBRARY_PATH" ]; then
--#   export LD_LIBRARY_PATH=${DEVEL_PATH}/CSXCAD:${DEVEL_PATH}/QCSXCAD:${DEVEL_PATH}/tinyxml:${DEVEL_PATH}/fparser:${LD_LIBRARY_PATH}
--#else
--   export LD_LIBRARY_PATH=${DEVEL_PATH}/CSXCAD:${DEVEL_PATH}/QCSXCAD:${DEVEL_PATH}/tinyxml:${DEVEL_PATH}/fparser
--#fi
-+#
-+# Important! If you get a vtk error like this:
-+# ERROR: In /builddir/build/BUILD/VTK/Rendering/vtkXOpenGLRenderWindow.cxx, line 404
-+# vtkXOpenGLRenderWindow (0xbe2980): Could not find a decent visual
-+# you need to uncomment the next line:
-+# export LIBGL_ALWAYS_INDIRECT=y
- 
--echo "Setup Library path"
--echo $LD_LIBRARY_PATH
--
--echo "Run AppCSXCAD"
--
 -$DEVEL_PATH/AppCSXCAD/AppCSXCAD $@
 +AppCSXCAD $@

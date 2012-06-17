@@ -18,14 +18,15 @@
 # norootforbuild
 
 Name:           AppCSXCAD
-Version:        0.1.0
-Release:        3
+Version:        0.1.1
+Release:        1
 Summary:        View CSXCAD geometries
 Group:          Productivity/Scientific/Physics
 License:        GPLv3
 URL:            http://www.openems.de
 Source0:        %{name}-%{version}.tar.bz2
-Patch0:         start_script.patch
+#Patch0:         install.patch
+Patch1:         start_script.patch
 BuildRoot:      %_tmppath/%name-%version-build
 
 # libfparser4-devel contains a static library => no runtime requirement
@@ -47,7 +48,8 @@ View CSXCAD geometries. Based on QCSXCAD.
 
 %prep
 %setup -q
-%patch0 -p0
+#%patch0 -p1
+%patch1 -p1
 
 %build
 %qmake QMAKE_CFLAGS="%optflags" QMAKE_CXXFLAGS="%optflags" LIB_SUFFIX="$(echo %_lib | cut -b4-)" AppCSXCAD.pro
@@ -70,6 +72,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Jun 17 2012 Sebastian Held <sebastian.held@gmx.de> - 0.1.1-1
+- New upstream version
 * Mon Jan 09 2012 Sebastian Held <sebastian.held@gmx.de> - 0.1.0-3
 - Modified start script
 * Wed Dec 28 2011 Sebastian Held <sebastian.held@gmx.de> - 0.1.0-2

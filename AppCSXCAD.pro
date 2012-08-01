@@ -24,12 +24,11 @@ unix {
 		../QCSXCAD
     LIBS += -L../QCSXCAD -lQCSXCAD \
         -L../CSXCAD -lCSXCAD \
-        -L../fparser -lfparser
+        -lfparser
         INCLUDEPATH += /usr/include/QCSXCAD \
                        /usr/include/CSXCAD
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
-QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../fparser\'
 }
 HEADERS += AppCSXCAD.h
 SOURCES += AppCSXCAD.cpp \

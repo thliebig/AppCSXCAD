@@ -23,13 +23,13 @@ unix {
     INCLUDEPATH += ../CSXCAD \
 		../QCSXCAD
     LIBS += -L../QCSXCAD -lQCSXCAD \
-        -L../CSXCAD -lCSXCAD \
-        -lfparser
+        -L../CSXCAD -lCSXCAD
         INCLUDEPATH += /usr/include/QCSXCAD \
                        /usr/include/CSXCAD
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
 QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
 }
+
 HEADERS += AppCSXCAD.h
 SOURCES += AppCSXCAD.cpp \
     main.cpp

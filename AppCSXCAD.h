@@ -21,6 +21,7 @@ public slots:
 	virtual void clear();
 
 protected:
+	void parseCommandLineArguments(const QStringList &argList);
 	void SaveSettings();
 	void LoadSettings();
 	QString m_filename;

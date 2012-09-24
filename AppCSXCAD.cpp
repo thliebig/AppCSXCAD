@@ -47,11 +47,43 @@ AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 	setWindowTitle(title);
 	View3D();
 	LoadSettings();
+
+	parseCommandLineArguments(qApp->arguments());
 }
 
 AppCSXCAD::~AppCSXCAD()
 {
 	SaveSettings();
+}
+
+void AppCSXCAD::parseCommandLineArguments(const QStringList &argList)
+{
+	for (int n=0;n<argList.size();++n)
+	{
+		QString arg = argList.at(n);
+		if (!arg.startsWith("--"))
+			continue;
+		QStringList arg_split = arg.split("=",QString::SkipEmptyParts);
+
+		if (arg_split.size()==0)
+			continue;
+
+		//compate with all known args
+		if (arg_split.at(0).compare("--export-polydata-vtk")==0)
+		{
+			cout << "AppCSXCAD - exporting 3D view to polydata vtk" << endl;
+			if (arg_split.size()<=1)
+				continue;
+			ExportGeometry_PolyDataVTK(arg_split.at(1));
+		}
+		if (arg_split.at(0).compare("--export-STL")==0)
+		{
+			cout << "AppCSXCAD - exporting 3D data to STL" << endl;
+			if (arg_split.size()<=1)
+				continue;
+			ExportGeometry_STL(arg_split.at(1));
+		}
+	}
 }
 
 void AppCSXCAD::SaveSettings()

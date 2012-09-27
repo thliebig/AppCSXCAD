@@ -6,7 +6,7 @@ CONFIG += debug_and_release
 GITREV = $$system(git describe --tags)
 DEFINES += GIT_VERSION=\\\"$$GITREV\\\"
 
-VERSION = 0.1.1
+VERSION = 0.1.2
 
 MOC_DIR = moc
 OBJECTS_DIR = obj

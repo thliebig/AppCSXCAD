@@ -12,22 +12,47 @@ MOC_DIR = moc
 OBJECTS_DIR = obj
 QT += core gui xml
 
+# remove unnecessary webkit define
+DEFINES -= QT_WEBKIT
+
+exists(localPathes.pri) {
+    include(localPathes.pri)
+}
+
 win32 {
-    INCLUDEPATH += ../QCSXCAD
-    LIBS += -L../QCSXCAD/release -lQCSXCAD0
-    INCLUDEPATH += ../CSXCAD
-    LIBS += -L../CSXCAD/release -lCSXCAD0
+    isEmpty(WIN32_LIB_ROOT) {
+        WIN32_LIB_ROOT = ..
+    }
+    isEmpty(CSXCAD_ROOT) {
+        CSXCAD_ROOT = $$WIN32_LIB_ROOT/CSXCAD
+    }
+    isEmpty(QCSXCAD_ROOT) {
+        QCSXCAD_ROOT = $$WIN32_LIB_ROOT/QCSXCAD
+    }
+    #CSXCAD
+    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
+    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD0
+    #QCSXCAD
+    INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
+    LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD0
 }
 
 unix { 
-    INCLUDEPATH += ../CSXCAD \
-		../QCSXCAD
-    LIBS += -L../QCSXCAD -lQCSXCAD \
-        -L../CSXCAD -lCSXCAD
-        INCLUDEPATH += /usr/include/QCSXCAD \
-                       /usr/include/CSXCAD
-QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
-QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
+    isEmpty(CSXCAD_ROOT) {
+     CSXCAD_ROOT = /usr
+    }
+    isEmpty(QCSXCAD_ROOT) {
+     QCSXCAD_ROOT = /usr
+    }
+    #CSXCAD
+    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
+    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD
+    #QCSXCAD
+    INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
+    LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD
+
+    QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
+    QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
 }
 
 HEADERS += AppCSXCAD.h
@@ -53,9 +78,13 @@ QMAKE_EXTRA_TARGETS += tarball
 #
 # INSTALL
 #
+isEmpty(PREFIX) {
+ PREFIX = /usr/local
+}
 install.target = install
-install.commands = mkdir -p \"$(INSTALL_ROOT)/usr/bin\"
-install.commands += && cp -at \"$(INSTALL_ROOT)/usr/bin/\" AppCSXCAD AppCSXCAD.sh
+install.commands = mkdir -p \"$$PREFIX/bin\"
+unix:install.commands += && cp -at \"$$PREFIX/bin/\" AppCSXCAD AppCSXCAD.sh
+win32:install.commands += && cp -at \"$$PREFIX/bin/\" release/AppCSXCAD.exe
 
 QMAKE_EXTRA_TARGETS += install
 

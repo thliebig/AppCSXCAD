@@ -2,11 +2,12 @@ TEMPLATE = app
 TARGET = AppCSXCAD
 CONFIG += debug_and_release
 
+VERSION = 0.1.2
+
 # add git revision
 GITREV = $$system(git describe --tags)
+isEmpty(GITREV):GITREV=$$VERSION
 DEFINES += GIT_VERSION=\\\"$$GITREV\\\"
-
-VERSION = 0.1.2
 
 MOC_DIR = moc
 OBJECTS_DIR = obj
@@ -39,10 +40,14 @@ win32 {
 
 unix { 
     isEmpty(CSXCAD_ROOT) {
-     CSXCAD_ROOT = /usr
+        CSXCAD_ROOT = /usr
+    } else {
+        QMAKE_LFLAGS += \'-Wl,-rpath,$$CSXCAD_ROOT/lib\'
     }
     isEmpty(QCSXCAD_ROOT) {
      QCSXCAD_ROOT = /usr
+    } else {
+        QMAKE_LFLAGS += \'-Wl,-rpath,$$QCSXCAD_ROOT/lib\'
     }
     #CSXCAD
     INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
@@ -50,9 +55,6 @@ unix {
     #QCSXCAD
     INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
     LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD
-
-    QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../CSXCAD\'
-    QMAKE_LFLAGS += \'-Wl,-rpath,\$$ORIGIN/../QCSXCAD\'
 }
 
 HEADERS += AppCSXCAD.h
@@ -79,7 +81,7 @@ QMAKE_EXTRA_TARGETS += tarball
 # INSTALL
 #
 isEmpty(PREFIX) {
- PREFIX = /usr/local
+    PREFIX = /usr/local
 }
 install.target = install
 install.commands = mkdir -p \"$$PREFIX/bin\"

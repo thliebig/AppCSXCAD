@@ -49,12 +49,21 @@ unix {
     } else {
         QMAKE_LFLAGS += \'-Wl,-rpath,$$QCSXCAD_ROOT/lib\'
     }
+    #vtk
+    isEmpty(VTK_LIBRARYPATH) {
+        #unnecessary by default
+    } else {
+        LIBS+=-L$$VTK_LIBRARYPATH
+        QMAKE_LFLAGS += \'-Wl,-rpath,$$VTK_LIBRARYPATH\'
+    }
     #CSXCAD
     INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
     LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD
     #QCSXCAD
     INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
     LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD
+
+
 }
 
 HEADERS += AppCSXCAD.h

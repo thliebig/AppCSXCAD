@@ -24,31 +24,41 @@ win32 {
     isEmpty(WIN32_LIB_ROOT) {
         WIN32_LIB_ROOT = ..
     }
+
+    #CSXCAD
     isEmpty(CSXCAD_ROOT) {
         CSXCAD_ROOT = $$WIN32_LIB_ROOT/CSXCAD
     }
+    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
+    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD0
+
+    #QCSXCAD
     isEmpty(QCSXCAD_ROOT) {
         QCSXCAD_ROOT = $$WIN32_LIB_ROOT/QCSXCAD
     }
-    #CSXCAD
-    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
-    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD0
-    #QCSXCAD
     INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
     LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD0
 }
 
 unix { 
+    #CSXCAD
     isEmpty(CSXCAD_ROOT) {
         CSXCAD_ROOT = /usr
     } else {
         QMAKE_LFLAGS += \'-Wl,-rpath,$$CSXCAD_ROOT/lib\'
     }
+    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
+    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD
+
+    #QCSXCAD
     isEmpty(QCSXCAD_ROOT) {
      QCSXCAD_ROOT = /usr
     } else {
         QMAKE_LFLAGS += \'-Wl,-rpath,$$QCSXCAD_ROOT/lib\'
     }
+    INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
+    LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD
+
     #vtk
     isEmpty(VTK_LIBRARYPATH) {
         #unnecessary by default
@@ -56,14 +66,6 @@ unix {
         LIBS+=-L$$VTK_LIBRARYPATH
         QMAKE_LFLAGS += \'-Wl,-rpath,$$VTK_LIBRARYPATH\'
     }
-    #CSXCAD
-    INCLUDEPATH += $$CSXCAD_ROOT/include/CSXCAD
-    LIBS += -L$$CSXCAD_ROOT/lib -lCSXCAD
-    #QCSXCAD
-    INCLUDEPATH += $$QCSXCAD_ROOT/include/QCSXCAD
-    LIBS += -L$$QCSXCAD_ROOT/lib -lQCSXCAD
-
-
 }
 
 HEADERS += AppCSXCAD.h

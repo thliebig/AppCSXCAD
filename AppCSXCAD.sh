@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEVEL_PATH=$(dirname $0)/..
+BIN_PATH=`dirname $0`
 
 # unset the library search path
 # Matlab sets it to point to an old libc
@@ -12,4 +12,4 @@ export LD_LIBRARY_PATH=
 # you need to uncomment the next line:
 # export LIBGL_ALWAYS_INDIRECT=y
 
-$DEVEL_PATH/AppCSXCAD/AppCSXCAD $@
+$BIN_PATH/AppCSXCAD $@

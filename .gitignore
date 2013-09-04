@@ -9,6 +9,6 @@ Makefile*
 object_script.*.*
 *~
 qrc_images.cpp
-localPathes.pri
+localPaths.pri
 AppCSXCAD
 *.o

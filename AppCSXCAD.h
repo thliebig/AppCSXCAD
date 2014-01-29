@@ -1,7 +1,9 @@
 #ifndef APPCSXCAD_H
 #define APPCSXCAD_H
 
-#include <QtGui>
+#include <QWidget>
+#include <QString>
+#include <QStringList>
 #include "QCSXCAD.h"
 
 #define __APPNAME__ "AppCSXCAD"

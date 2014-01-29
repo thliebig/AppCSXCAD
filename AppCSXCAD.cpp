@@ -1,3 +1,9 @@
+
+
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+
 #include "AppCSXCAD.h"
 
 #include "QVTKStructure.h"

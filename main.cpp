@@ -1,6 +1,5 @@
 #include "AppCSXCAD.h"
 
-#include <QtGui>
 #include <QApplication>
 
 int main(int argc, char *argv[])

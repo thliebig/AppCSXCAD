@@ -12,6 +12,7 @@ DEFINES += GIT_VERSION=\\\"$$GITREV\\\"
 MOC_DIR = moc
 OBJECTS_DIR = obj
 QT += core gui xml
+greaterThan(QT_MAJOR_VERSION, 4):QT+=widgets
 
 # remove unnecessary webkit define
 DEFINES -= QT_WEBKIT
@@ -52,7 +53,7 @@ unix {
 
     #QCSXCAD
     isEmpty(QCSXCAD_ROOT) {
-     QCSXCAD_ROOT = /usr
+        QCSXCAD_ROOT = /usr
     } else {
         QMAKE_LFLAGS += \'-Wl,-rpath,$$QCSXCAD_ROOT/lib\'
     }
@@ -63,7 +64,6 @@ unix {
     isEmpty(VTK_LIBRARYPATH) {
         #unnecessary by default
     } else {
-        LIBS+=-L$$VTK_LIBRARYPATH
         QMAKE_LFLAGS += \'-Wl,-rpath,$$VTK_LIBRARYPATH\'
     }
 }

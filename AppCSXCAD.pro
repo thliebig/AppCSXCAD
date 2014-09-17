@@ -96,8 +96,9 @@ isEmpty(PREFIX) {
 }
 install.target = install
 install.commands = mkdir -p \"$$PREFIX/bin\"
-unix:install.commands += && cp -at \"$$PREFIX/bin/\" AppCSXCAD AppCSXCAD.sh
+unix:!macx:install.commands += && cp -at \"$$PREFIX/bin/\" AppCSXCAD AppCSXCAD.sh
 win32:install.commands += && cp -at \"$$PREFIX/bin/\" release/AppCSXCAD.exe
+macx:install.commands += && cp -r AppCSXCAD.app AppCSXCAD.sh \"$$PREFIX/bin/\"
 
 QMAKE_EXTRA_TARGETS += install
 

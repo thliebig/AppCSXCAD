@@ -2,9 +2,11 @@ release/
 debug/
 obj/
 moc/
+bin/
 .cproject
 .project
 .cdtproject
+.directory
 Makefile*
 object_script.*.*
 *~
@@ -12,3 +14,11 @@ qrc_images.cpp
 localPaths.pri
 AppCSXCAD
 *.o
+moc_*
+
+#cmake
+**CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+localConfig.cmake

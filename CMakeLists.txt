@@ -74,48 +74,35 @@ message(STATUS "QCSXCAD: ${QCSXCAD_LIBRARIES}" )
 #TODO test if QCSXCADs was found
 INCLUDE_DIRECTORIES( ${QCSXCAD_ROOT_DIR}/include/QCSXCAD )
 
-# TODO handle Qt5
-FIND_PACKAGE( Qt4 4.6.3 REQUIRED QtCore QtGui QtXml)
-
-INCLUDE( ${QT_USE_FILE} )
-
-
+# vtk
 find_package(VTK REQUIRED)
+
+message(STATUS "Found package VTK. Using " ${VTK_VERSION})
+include(${VTK_USE_FILE})
+INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIR})
 
 if("${VTK_MAJOR_VERSION}" EQUAL 5)
   set( vtk_LIBS
-    QVTK
-  )
-endif()
-
-
-if("${VTK_MAJOR_VERSION}" EQUAL 6)
+    QVTK )
+elseif("${VTK_MAJOR_VERSION}" EQUAL 6)
   set( vtk_LIBS
-    vtkGUISupportQt
-  )
+    vtkGUISupportQt)
 endif()
 
-if(VTK_FOUND)
-	message(STATUS "Found package VTK. Using " ${VTK_USE_FILE})
-    include(${VTK_USE_FILE})
-else(VTK_FOUND)
-    message(FATAL_ERROR "VTK not found. Please set VTK_DIR.")
-endif(VTK_FOUND)
+# Qt
+set(CMAKE_AUTOMOC ON)
+if("${VTK_MAJOR_VERSION}" EQUAL 5)
+    FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml)
+    INCLUDE( ${QT_USE_FILE} )
+elseif("${VTK_MAJOR_VERSION}" EQUAL 6)
+    find_package(Qt5Widgets REQUIRED)
+    include_directories(${Qt5Widgets_INCLUDE_DIRS})
+    find_package(Qt5Xml REQUIRED)
+    include_directories(${Qt5Xml_INCLUDE_DIRS})
+    INCLUDE_DIRECTORIES(${Qt5_INCLUDE_DIRS})
+    set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+endif()
 
-INCLUDE_DIRECTORIES (${VTK_INCLUDE_DIR})
-
-#message(status "VTK selected: ${vtk_LIBS}")
-#message(status "VTK all libs: ${VTK_LIBRARIES}")
-
-#
-# files that have Q_OBJECT need to be MOC'ed
-# TODO use newer automoc with Qt5
-SET(MOC_HDRS AppCSXCAD.h)
-
-#
-# headers that need to be moc'ed
-#
-QT4_WRAP_CPP( MOC_SRCS ${MOC_HDRS} )
 
 SET(SOURCES
   main.cpp
@@ -124,8 +111,11 @@ SET(SOURCES
 
 ADD_EXECUTABLE( AppCSXCAD MACOSX_BUNDLE WIN32
   ${SOURCES}
-  ${MOC_SRCS}
 )
+
+if(Qt5Widgets_FOUND)
+    qt5_use_modules(AppCSXCAD Widgets Xml)
+endif()
 
 # TODO check for QVTK again?
 TARGET_LINK_LIBRARIES( AppCSXCAD

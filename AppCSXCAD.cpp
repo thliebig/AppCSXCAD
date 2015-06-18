@@ -93,14 +93,14 @@ void AppCSXCAD::parseCommandLineArguments(const QStringList &argList)
 		//compate with all known args
 		if (arg_split.at(0).compare("--export-polydata-vtk")==0)
 		{
-			cout << "AppCSXCAD - exporting 3D view to polydata vtk" << endl;
+			std::cout << "AppCSXCAD - exporting 3D view to polydata vtk" << std::endl;
 			if (arg_split.size()<=1)
 				continue;
 			ExportGeometry_PolyDataVTK(arg_split.at(1));
 		}
 		if (arg_split.at(0).compare("--export-STL")==0)
 		{
-			cout << "AppCSXCAD - exporting 3D data to STL" << endl;
+			std::cout << "AppCSXCAD - exporting 3D data to STL" << std::endl;
 			if (arg_split.size()<=1)
 				continue;
 			ExportGeometry_STL(arg_split.at(1));

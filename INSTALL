@@ -8,11 +8,12 @@ Install instructions for AppCSXCAD:
 2) Build:
   - change directory to QCSXCAD
   - build:
-    qmake PREFIX=<path/to/install/> CSXCAD_ROOT=<path/to/CSXCAD> QCSXCAD_ROOT=<path/to/QCSXCAD> AppCSXCAD.pro
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX=<path/to/install/> -DCSXCAD_ROOT_DIR=<path/to/CSXCAD> -DQCSXCAD_ROOT_DIR=<path/to/QCSXCAD>
     make
     make install (may require root)
 
     Note:
-      - all path informations may be stored in a localPathes.pri
+      - all path informations may be stored in a localConfig.cmake
       - the default "prefix" is /usr/local
-

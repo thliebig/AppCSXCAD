@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = AppCSXCAD
 CONFIG += debug_and_release
 
-VERSION = 0.1.5
+VERSION = 0.2.0
 
 # add git revision
 GITREV = $$system(git describe --tags)

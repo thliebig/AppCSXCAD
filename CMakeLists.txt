@@ -96,7 +96,10 @@ if (WIN32)
     find_package(VTK 6.1 REQUIRED)
 else()
     # prefer >=6.1, fallback to >=5.4
-    find_package(VTK REQUIRED)
+    find_package(VTK 6.1 COMPONENTS vtkGUISupportQt NO_MODULE)
+    IF (NOT ${VTK_FOUND})
+        find_package(VTK REQUIRED)
+    endif()
 endif()
 
 message(STATUS "Found package VTK. Using " ${VTK_VERSION})
@@ -110,6 +113,7 @@ elseif("${VTK_MAJOR_VERSION}" EQUAL 6)
   set( vtk_LIBS
     vtkGUISupportQt)
 endif()
+message(STATUS "vtk libraries " ${vtk_LIBS})
 
 # Qt
 set(CMAKE_AUTOMOC ON)

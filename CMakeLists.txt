@@ -19,7 +19,7 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/localConfig.cmake)
 ENDIF()
 
 # default
-set(VERSION "v0.2.1")
+set(VERSION "v0.2.2")
 
 # add git revision
 IF(EXISTS ${PROJECT_SOURCE_DIR}/.git )
@@ -154,7 +154,7 @@ TARGET_LINK_LIBRARIES( AppCSXCAD
   ${CSXCAD_LIBRARIES}
   ${QCSXCAD_LIBRARIES}
   ${HDF5_LIBRARIES}
-   ${HDF5_HL_LIBRARIES}
+  ${HDF5_HL_LIBRARIES}
   ${QT_LIBRARIES}
   ${vtk_LIBS}
 )

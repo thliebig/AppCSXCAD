@@ -100,15 +100,7 @@ find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
 # vtk
-if (WIN32)
-    find_package(VTK 6.1 REQUIRED)
-else()
-    # prefer >=6.1, fallback to >=5.4
-    find_package(VTK 6.1 COMPONENTS vtkGUISupportQt NO_MODULE)
-    IF (NOT ${VTK_FOUND})
-        find_package(VTK REQUIRED)
-    endif()
-endif()
+find_package(VTK REQUIRED)
 
 message(STATUS "Found package VTK. Using " ${VTK_VERSION})
 include(${VTK_USE_FILE})

@@ -10,6 +10,10 @@ PROJECT( AppCSXCAD CXX C)
 
 cmake_minimum_required(VERSION 2.8)
 
+if (UNIX)
+    set (CMAKE_CXX_FLAGS -fPIC )
+endif()
+
 if(POLICY CMP0020)
   cmake_policy(SET CMP0020 OLD)
 endif()
@@ -106,15 +110,6 @@ message(STATUS "Found package VTK. Using " ${VTK_VERSION})
 include(${VTK_USE_FILE})
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIR})
 
-if("${VTK_MAJOR_VERSION}" EQUAL 5)
-  set( vtk_LIBS
-    QVTK )
-elseif("${VTK_MAJOR_VERSION}" EQUAL 6)
-  set( vtk_LIBS
-    vtkGUISupportQt)
-endif()
-message(STATUS "vtk libraries " ${vtk_LIBS})
-
 # Qt
 set(CMAKE_AUTOMOC ON)
 if(${VTK_VERSION} VERSION_GREATER "6" AND VTK_QT_VERSION VERSION_GREATER "4")
@@ -138,17 +133,13 @@ SET(SOURCES
 
 ADD_EXECUTABLE( AppCSXCAD ${SOURCES} )
 
-if(Qt5Widgets_FOUND)
-    qt5_use_modules(AppCSXCAD Widgets Xml)
-endif()
-
 TARGET_LINK_LIBRARIES( AppCSXCAD
   ${CSXCAD_LIBRARIES}
   ${QCSXCAD_LIBRARIES}
   ${HDF5_LIBRARIES}
   ${HDF5_HL_LIBRARIES}
-  ${QT_LIBRARIES}
-  ${vtk_LIBS}
+  Qt5::Core Qt5::Widgets Qt5::Xml
+  ${VTK_LIBRARIES}
 )
 
 #

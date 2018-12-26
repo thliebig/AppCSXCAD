@@ -18,6 +18,7 @@
 #include "AppCSXCAD.h"
 
 #include <QVTKOpenGLWidget.h>
+#include "vtkCommand.h"
 #if VTK_MAJOR_VERSION>=8
   #include <QSurfaceFormat>
   #include <QApplication>

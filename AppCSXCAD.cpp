@@ -120,10 +120,9 @@ void AppCSXCAD::SaveSettings()
 void AppCSXCAD::LoadSettings()
 {
 	QSettings settings(__APPNAME__, __APPNAME__);
-
 	settings.beginGroup("MainWindow");
 	restoreGeometry(settings.value("Geometry").toByteArray());
-	restoreState(settings.value("State").toByteArray());
+	//restoreState(settings.value("State").toByteArray());
 	settings.endGroup();
 }
 

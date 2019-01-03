@@ -17,12 +17,12 @@
 
 #include "AppCSXCAD.h"
 
-#include <QVTKOpenGLWidget.h>
 #include "vtkCommand.h"
 #if VTK_MAJOR_VERSION>=8
+  #include <QVTKOpenGLWidget.h>
   #include <QSurfaceFormat>
-  #include <QApplication>
 #endif
+#include <QApplication>
 
 int main(int argc, char *argv[])
 {

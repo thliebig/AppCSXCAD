@@ -104,7 +104,7 @@ find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
 # vtk
-find_package(VTK REQUIRED)
+find_package(VTK REQUIRED COMPONENTS CommonCore NO_MODULE)
 
 message(STATUS "Found package VTK. Using " ${VTK_VERSION})
 include(${VTK_USE_FILE})

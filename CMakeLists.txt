@@ -104,7 +104,7 @@ find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
 # vtk
-find_package(VTK REQUIRED COMPONENTS vtkIOGeometry NO_MODULE)
+find_package(VTK REQUIRED COMPONENTS vtkIOGeometry vtkGUISupportQt NO_MODULE)
 if (${VTK_VERSION} VERSION_GREATER "9")
     find_package(VTK REQUIRED COMPONENTS CommonCore NO_MODULE)
 else()
@@ -117,6 +117,10 @@ INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIR})
 
 # Qt
 set(CMAKE_AUTOMOC ON)
+if(NOT DEFINED VTK_QT_VERSION)
+    message("VTK QT VERSION is not defined, defaulting to 5")
+    set(VTK_QT_VERSION 5)
+endif()
 if(${VTK_VERSION} VERSION_GREATER "6" AND VTK_QT_VERSION VERSION_GREATER "4")
     find_package(Qt5Widgets REQUIRED)
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -144,6 +148,7 @@ TARGET_LINK_LIBRARIES( AppCSXCAD
   ${HDF5_LIBRARIES}
   ${HDF5_HL_LIBRARIES}
   Qt5::Core Qt5::Widgets Qt5::Xml
+  VTK::GUISupportQt
   ${VTK_LIBRARIES}
 )
 

@@ -106,7 +106,7 @@ INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 # vtk
 find_package(VTK REQUIRED COMPONENTS vtkIOGeometry NO_MODULE)
 if (${VTK_VERSION} VERSION_GREATER "9")
-    find_package(VTK REQUIRED COMPONENTS CommonCore NO_MODULE)
+    find_package(VTK REQUIRED COMPONENTS CommonCore GUISupportQt NO_MODULE)
 else()
     find_package(VTK REQUIRED)
 endif()

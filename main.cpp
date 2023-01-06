@@ -18,7 +18,10 @@
 #include "AppCSXCAD.h"
 
 #include "vtkCommand.h"
-#if VTK_MAJOR_VERSION>=8
+#include "vtkVersion.h"
+#if VTK_MAJOR_VERSION>=9
+  #include <QVTKOpenGLNativeWidget.h>
+#elif VTK_MAJOR_VERSION==8
   #include <QVTKOpenGLWidget.h>
   #include <QSurfaceFormat>
 #endif
@@ -26,8 +29,10 @@
 
 int main(int argc, char *argv[])
 {
-#if VTK_MAJOR_VERSION>=8
-    QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+#if VTK_MAJOR_VERSION>=9
+	QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+#elif VTK_MAJOR_VERSION==8
+	QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
 #endif
 #if not defined(__WIN32) && not defined(__WIN64)
 	//prevent that Qt changes float handling, e.g. expecting a german 1,345e+3 will fail...

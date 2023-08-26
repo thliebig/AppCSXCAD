@@ -109,10 +109,10 @@ if (${VTK_VERSION} VERSION_GREATER "9")
     find_package(VTK REQUIRED COMPONENTS CommonCore GUISupportQt NO_MODULE)
 else()
     find_package(VTK REQUIRED)
+    include(${VTK_USE_FILE})
 endif()
 
 message(STATUS "Found package VTK. Using " ${VTK_VERSION})
-include(${VTK_USE_FILE})
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIR})
 
 # Qt

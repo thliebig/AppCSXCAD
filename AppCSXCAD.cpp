@@ -24,12 +24,6 @@
 #include "QVTKStructure.h"
 #include "QCSXCAD_Global.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-using Qt::SkipEmptyParts;
-#else
-using QString::SkipEmptyParts;
-#endif
-
 AppCSXCAD::AppCSXCAD(QWidget *parent) : QCSXCAD(parent)
 {
 	QMenuBar* mb = menuBar();
@@ -91,7 +85,12 @@ void AppCSXCAD::parseCommandLineArguments(const QStringList &argList)
 		QString arg = argList.at(n);
 		if (!arg.startsWith("--"))
 			continue;
-		QStringList arg_split = arg.split("=",SkipEmptyParts);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QStringList arg_split = arg.split("=",Qt::SkipEmptyParts);
+#else
+		QStringList arg_split = arg.split("=",QString::SkipEmptyParts);
+#endif
 
 		if (arg_split.size()==0)
 			continue;

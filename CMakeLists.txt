@@ -23,7 +23,7 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/localConfig.cmake)
 ENDIF()
 
 # default
-set(VERSION "v0.2.2")
+set(VERSION "v0.2.3")
 
 # add git revision
 IF(EXISTS ${PROJECT_SOURCE_DIR}/.git )

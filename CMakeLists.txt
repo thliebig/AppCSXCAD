@@ -103,6 +103,23 @@ INCLUDE_DIRECTORIES( ${QCSXCAD_INCLUDE_DIR} )
 find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
+# Both Qt6 support and the variable VTK_QT_VERSION are introduced in vTK
+# 9.1. Below VTK 9, we don't know the Qt version used by VTK, so we make
+# a guess and hope for the best. Since Qt6 is not officially supported
+# before 9.1, we guess Qt4 or Qt5.
+# https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7483
+if (NOT DEFINED VTK_QT_VERSION)
+    FIND_PACKAGE(Qt4 COMPONENTS Core QUIET)
+    if (Qt4_FOUND)
+        SET(VTK_QT_VERSION "4")
+    else()
+        SET(VTK_QT_VERSION "5")
+    # Probably no need to check for Qt6 here, since Qt6 is only supported by VTK 9.1+
+    # which exposes VTK_QT_VERSION
+    endif()
+    message(STATUS "VTK_QT_VERSION is unsupported before VTK 9.1, a guess has been made.")
+endif()
+
 # vtk
 find_package(VTK REQUIRED COMPONENTS vtkIOGeometry NO_MODULE)
 if (${VTK_VERSION} VERSION_GREATER "9")

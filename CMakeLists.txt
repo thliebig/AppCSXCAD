@@ -109,7 +109,7 @@ INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 # before 9.1, we guess Qt4 or Qt5.
 # https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7483
 if (NOT DEFINED VTK_QT_VERSION)
-    FIND_PACKAGE(Qt4 COMPONENTS Core QUIET)
+    FIND_PACKAGE(Qt4 COMPONENTS QtCore QUIET)
     if (Qt4_FOUND)
         SET(VTK_QT_VERSION "4")
     else()
@@ -117,15 +117,26 @@ if (NOT DEFINED VTK_QT_VERSION)
     # Probably no need to check for Qt6 here, since Qt6 is only supported by VTK 9.1+
     # which exposes VTK_QT_VERSION
     endif()
-    message(STATUS "VTK_QT_VERSION is unsupported before VTK 9.1, a guess has been made.")
+    message(
+      WARNING
+      "VTK_QT_VERSION is unsupported before VTK 9.1, "
+      "a guess has been made: Qt ${VTK_QT_VERSION}. "
+      "Use -DVTK_QT_VERSION=number to override!"
+    )
 endif()
 
 # vtk
-find_package(VTK REQUIRED COMPONENTS vtkIOGeometry NO_MODULE)
+find_package(VTK COMPONENTS vtkCommonCore QUIET)
 if (${VTK_VERSION} VERSION_GREATER "9")
-    find_package(VTK REQUIRED COMPONENTS CommonCore GUISupportQt NO_MODULE)
+    find_package(VTK REQUIRED COMPONENTS
+      CommonCore IOXML InteractionWidgets RenderingLOD GUISupportQt
+      NO_MODULE
+    )
 else()
-    find_package(VTK REQUIRED)
+    find_package(VTK REQUIRED COMPONENTS
+      vtkCommonCore vtkIOXML vtkInteractionWidgets vtkRenderingLOD vtkGUISupportQt
+      NO_MODULE
+    )
     include(${VTK_USE_FILE})
 endif()
 

@@ -154,6 +154,7 @@ elseif(${VTK_VERSION} VERSION_GREATER "6" AND VTK_QT_VERSION VERSION_GREATER "4"
 else()
     FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml)
     INCLUDE( ${QT_USE_FILE} )
+    INCLUDE_DIRECTORIES(${QT_INCLUDES})
 endif()
 
 message(STATUS "Found package VTK. Using version " ${VTK_VERSION})

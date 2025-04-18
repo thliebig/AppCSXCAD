@@ -14,9 +14,10 @@ if (UNIX)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
 endif()
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 OLD)
-endif()
+# not supported any more by cmake 4.0?
+# if(POLICY CMP0020)
+#   cmake_policy(SET CMP0020 OLD)
+# endif()
 
 IF(EXISTS ${PROJECT_SOURCE_DIR}/localConfig.cmake)
    include(${PROJECT_SOURCE_DIR}/localConfig.cmake)

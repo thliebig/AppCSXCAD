@@ -1,0 +1,517 @@
+name: "CI"
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      # Use "false" means a single failed build won't terminate other combinations
+      # in the matrix. This wastes CPU time, but is an important debugging tool to
+      # prevent a single broken platform from stopping the whole matrix.
+      fail-fast: false
+
+      matrix:
+        os:
+          # name: OS name (only a name for humans to read).
+          # libc: userland libc, "GNU" or "musl"
+          #       (only a name for humans to read)
+          # ancient: true or false.
+          #          true: incompatible with GitHub's actions/checkout due to
+          #                node.js compatibility problem. Manual git checkout
+          #                required.
+          #          false: use standard GitHub's actions/checkout.
+          # docker-image: string, image on DockerHub to use
+          - name: "CentOS 7"
+            libc: "GNU"
+            ancient: true
+            docker-image: "centos:7"
+
+          - name: "Ubuntu 14.04"
+            libc: "GNU"
+            ancient: true
+            docker-image: "ubuntu:14.04"
+
+          - name: "Debian oldoldstable"
+            libc: "GNU"
+            ancient: false
+            docker-image: "debian:oldoldstable"
+
+          - name: "Debian oldstable"
+            libc: "GNU"
+            ancient: false
+            docker-image: "debian:oldstable"
+
+          - name: "Debian"
+            libc: "GNU"
+            ancient: false
+            docker-image: "debian:latest"
+
+          - name: "Ubuntu"
+            libc: "GNU"
+            ancient: false
+            docker-image: "ubuntu:latest"
+
+          - name: "Fedora"
+            libc: "GNU"
+            ancient: false
+            docker-image: "fedora:latest"
+
+          - name: "AlmaLinux 8"
+            libc: "GNU"
+            ancient: false
+            docker-image: "almalinux:8"
+
+          - name: "AlmaLinux Latest"
+            libc: "GNU"
+            ancient: false
+            docker-image: "almalinux:latest"
+
+          # Alpine has no VTK Qt support, disabled.
+          #- name: "Alpine"
+          #  libc: "musl"
+          #  ancient: false
+          #  docker-image: "alpine:latest"
+
+    container:
+      image: ${{ matrix.os.docker-image }}
+
+    name: "${{ matrix.os.libc }}/Linux (${{ matrix.os.name }})"
+
+    steps:
+      - name: Check for dockerenv file
+        # bash is not installed on Alpine at this point
+        shell: sh
+        run: (ls /.dockerenv && echo Found dockerenv) || exit 1
+
+      - name: Install dependencies
+        shell: sh
+        run: |
+          cat /etc/os-release
+
+          touch ~/.bash_profile  # set environment variables here
+          echo 'export CXXFLAGS="-Wall -Wextra -Wno-error"' >> ~/.bash_profile
+
+          if grep -q "ID=fedora" /etc/os-release; then
+            dnf install -y gcc gcc-c++ cmake boost-devel tinyxml-devel vtk-devel hdf5-devel \
+                           CGAL-devel vtk-qt
+          elif grep -q 'ID="almalinux"' /etc/os-release; then
+            dnf install -y epel-release
+            dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
+
+            dnf install -y gcc gcc-c++ cmake boost-devel tinyxml-devel vtk-devel hdf5-devel \
+                           CGAL-devel vtk-qt
+          elif grep -q "ID=debian" /etc/os-release || grep -q "ID=ubuntu" /etc/os-release; then
+            # retry failed downloads 3 times
+            echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
+            apt-get update
+
+            apt-get install -y build-essential git \
+                               libboost-all-dev libcgal-dev \
+                               libhdf5-dev libtinyxml-dev \
+                               qtbase5-dev
+
+            # VTK9 or VTK7, at least one must succeed (depending on Debian version)
+            # VTK9,  VTK7, or VTK6, at least one must succeed (depending on Debian version)
+            apt-get install -y libvtk9-dev libvtk9-qt-dev || \
+                apt-get install -y libvtk7-dev libvtk7-qt-dev || \
+                  apt-get install -y libvtk6-dev
+
+            if grep -q 'VERSION_ID="14.04"' /etc/os-release; then
+              # Ubuntu 14.04 has CMake 2 by default, but we require CMake 3
+              apt-get install -y cmake3
+            else
+              apt-get install -y cmake
+            fi
+          elif grep -q "ID=alpine" /etc/os-release; then
+            apk add bash git \
+                    build-base gmp-dev mpfr-dev cmake \
+                    boost-dev tinyxml-dev hdf5-dev cgal-dev vtk-dev
+          elif [ -f /etc/centos-release ]; then
+            # IPv6 on GitHub Actions is broken, causing random network failures
+            # if a CDN rosolves to IPv6.
+            echo "ip_resolve=4" >> /etc/yum.conf
+
+            # CentOS repos are EOL and desupported
+            sed -i 's|^mirrorlist|#mirrorlist|g; s|^#baseurl|baseurl|g; s|mirror.centos.org|vault.centos.org|g' \
+                /etc/yum.repos.d/CentOS-Base.repo
+
+            yum install -y centos-release-scl || true
+            sed -i 's|^mirrorlist|#mirrorlist|g; s|^#baseurl|baseurl|g;
+                    s|^# baseurl|baseurl|g; s|mirror.centos.org|vault.centos.org|g' \
+                /etc/yum.repos.d/CentOS-SCLo-scl.repo \
+                /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+            cat /etc/yum.repos.d/CentOS-SCLo-scl.repo
+            cat /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+
+            yum install -y epel-release
+            yum install -y git
+            yum install -y gcc gcc-c++ gmp-devel mpfr-devel \
+                           cmake3 git tinyxml-devel vtk-devel hdf5-devel
+
+            # use cmake3 instead of default cmake2
+            alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 99
+
+            # To upgrade GCC, one can use GCC 7 from centos-release-scl, required by CGAL.
+            # Even GCC 10+ is provided.
+            # Not used for now, since openEMS is still compatible with GCC 4.8! But we may
+            # need it in the future.
+            # yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++
+            # alternatives --install /usr/local/bin/gcc gcc /opt/rh/devtoolset-7/root/usr/bin/gcc 99
+            # alternatives --install /usr/local/bin/g++ g++ /opt/rh/devtoolset-7/root/usr/bin/g++ 99
+
+            # This is a very old Boost incompatible with openEMS, but good enough
+            # for CGAL. See openEMS.git for the alternative solution.
+            yum install -y boost-devel
+
+            # not package on CentOS
+            # CGAL v4.14.3 was old enough to be compatible with GCC 4.8. Otherwise,
+            # you get: The compiler feature "cxx_decltype_auto" is not known
+            # to CXX compiler "GNU" version 4.8.5.
+            git clone $GITHUB_SERVER_URL/CGAL/cgal.git --depth=1 --branch=v4.14.3
+            cd cgal && mkdir build && cd build
+            cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/opt
+            make -j`nproc` && make install
+          else
+            echo "Unknown system!"
+            exit 1
+          fi
+
+      - if: ${{ ! matrix.os.ancient }}
+        name: Checkout AppCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          path: AppCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - if: ${{ ! matrix.os.ancient }}
+        name: Checkout fparser.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/fparser"
+          path: fparser
+
+      - if: ${{ ! matrix.os.ancient }}
+        name: Checkout CSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/CSXCAD"
+          path: CSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - if: ${{ ! matrix.os.ancient }}
+        name: Checkout QCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/QCSXCAD"
+          path: QCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - if: ${{ matrix.os.ancient }}
+        name: Checkout AppCSXCAD.git (legacy system only)
+        run: |
+          git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git AppCSXCAD
+          cd $GITHUB_WORKSPACE/AppCSXCAD
+
+          git fetch --force $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git "+refs/heads/*:refs/remotes/origin/*"
+          git fetch --force $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git "+refs/pull/*/merge:refs/remotes/origin/pr/*"
+          git checkout $GITHUB_SHA
+
+      - if: ${{ matrix.os.ancient }}
+        name: Checkout fparser.git (legacy system only)
+        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/fparser.git
+
+      - if: ${{ matrix.os.ancient }}
+        name: Checkout CSXCAD.git (legacy system only)
+        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/CSXCAD.git
+
+      - if: ${{ matrix.os.ancient }}
+        name: Checkout QCSXCAD.git (legacy system only)
+        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/QCSXCAD.git
+
+      - name: Build and install fparser
+        run: |
+          source ~/.bash_profile
+          cd $GITHUB_WORKSPACE/fparser
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j`nproc` && make install
+
+      - name: Build and install CSXCAD
+        run: |
+          # cmake may fail with "fatal: No names found, cannot describe anything."
+          # if it happens, check if you're using a shallow clone, or if it's a GitHub
+          # fork created with "Copy the master branch only". If so, you need to FULL
+          # fork or clone.
+          #
+          # MPI may also fail, but this error is not fatal. The real error is often
+          # the error above! There's no need to install MPI.
+          source ~/.bash_profile
+          cd $GITHUB_WORKSPACE/CSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j`nproc` && make install
+
+      - name: Build and install QCSXCAD
+        run: |
+          source ~/.bash_profile
+          cd $GITHUB_WORKSPACE/QCSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j`nproc` && make install
+
+      - name: Build and install AppCSXCAD
+        run: |
+          source ~/.bash_profile
+          cd $GITHUB_WORKSPACE/AppCSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j`nproc` && make install
+
+  macOS:
+    name: "macOS (ARM, latest)"
+
+    runs-on: macos-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          touch ~/.zprofile  # set environment variables here
+          echo 'export CXXFLAGS="-Wall -Wextra -Wno-error"' >> ~/.zprofile
+
+          brew install git cmake boost hdf5 cgal vtk qt5compat
+
+          echo "export NCPUS=$(sysctl -n hw.ncpu)" >> ~/.zprofile
+          source ~/.zprofile
+
+          # TinyXML has been disabled by Homebrew at it's unmaintained
+          # since 2011, TinyXML2 is not API-compatible. As a stop-gap,
+          # build from source.
+          #
+          # -L: follow redirect, REQUIRED!
+          curl -L https://sourceforge.net/projects/tinyxml/files/tinyxml/2.6.2/tinyxml_2_6_2.tar.gz -o tinyxml-2.6.2.tar.gz
+          tar -xf tinyxml-2.6.2.tar.gz
+          cd tinyxml
+
+          # The first patch enforces use of stl strings, rather than a custom string type.
+          # The second patch is a fix for incorrect encoding of elements with special characters
+          # The third and fourth patches are security fixes.
+          #
+          # -L: follow redirect, REQUIRED!
+          # -O: save to disk with an automatic file name.
+          curl -L -O "https://raw.githubusercontent.com/alpinelinux/aports/b1ff376e83eb49c0127b039b3684eccdf9a60694/community/tinyxml/tinyxml-2.6.2-defineSTL.patch"
+          curl -L -O "https://raw.githubusercontent.com/alpinelinux/aports/b1ff376e83eb49c0127b039b3684eccdf9a60694/community/tinyxml/tinyxml-2.6.1-entity.patch"
+          curl -L -O "https://raw.githubusercontent.com/alpinelinux/aports/b1ff376e83eb49c0127b039b3684eccdf9a60694/community/tinyxml/CVE-2021-42260.patch"
+          curl -L -O "https://raw.githubusercontent.com/alpinelinux/aports/b1ff376e83eb49c0127b039b3684eccdf9a60694/community/tinyxml/CVE-2023-34194.patch"
+
+          # The final patch adds a CMakeLists.txt file to build a shared library and provide an install target
+          # submitted upstream as https://sourceforge.net/p/tinyxml/patches/66/
+          curl -L -O "https://gist.githubusercontent.com/scpeters/6325123/raw/cfb079be67997cb19a1aee60449714a1dedefed5/tinyxml_CMakeLists.patch"
+
+          patch -p1 < tinyxml-2.6.2-defineSTL.patch
+          patch -p1 < tinyxml-2.6.1-entity.patch
+          patch -p1 < CVE-2021-42260.patch
+          patch -p1 < CVE-2023-34194.patch
+
+          # You know something is truly deprecated when the patch itself needs
+          # patching! In CMake 4, 3.10 is deprecated and 3.5 has been removed.
+          # use 3.0...3.10 so all of these versions are acceptable as min. version.
+          # (CMake 2 is dropped since openEMS already requires CMake 3, and also
+          # because CMake 2 is too old that it's not even documented anymore)
+          #
+          # https://cmake.org/cmake/help/latest/command/cmake_minimum_required.html
+          sed -i -e "s/cmake_minimum_required(VERSION 2.4.6)/cmake_minimum_required(VERSION 3.0...3.10)/" \
+                    tinyxml_CMakeLists.patch  # -e is not optional in BSD sed
+          patch -p1 < tinyxml_CMakeLists.patch
+
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j$NCPUS && make install
+
+      - name: Checkout AppCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          path: AppCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Checkout fparser.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/fparser"
+          path: fparser
+
+      - name: Checkout CSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/CSXCAD"
+          path: CSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Checkout QCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/QCSXCAD"
+          path: QCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Build and install fparser
+        run: |
+          source ~/.zprofile
+          cd $GITHUB_WORKSPACE/fparser
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j$NCPUS && make install
+
+      - name: Build and install CSXCAD
+        run: |
+          # cmake may fail with "fatal: No names found, cannot describe anything."
+          # if it happens, check if you're using a shallow clone, or if it's a GitHub
+          # fork created with "Copy the master branch only". If so, you need to FULL
+          # fork or clone.
+          #
+          # MPI may also fail, but this error is not fatal. The real error is often
+          # the error above! There's no need to install MPI.
+          source ~/.zprofile
+          cd $GITHUB_WORKSPACE/CSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j$NCPUS && make install
+
+      - name: Build and install QCSXCAD
+        run: |
+          source ~/.zprofile
+          cd $GITHUB_WORKSPACE/QCSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j$NCPUS && make install
+
+      - name: Build and install AppCSXCAD
+        run: |
+          source ~/.zprofile
+          cd $GITHUB_WORKSPACE/AppCSXCAD
+          mkdir build && cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+          make -j$NCPUS && make install
+
+  FreeBSD:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        machine:
+          - name: "FreeBSD 14.2"
+            os: freebsd
+            arch: x86-64
+            version: '14.2'
+
+          # macOS already tests ARM for us, so disable the slow ARM emulator
+          # for now
+          #- name: "FreeBSD 14.2 (ARM emulator)"
+          #  os: freebsd
+          #  arch: arm64
+          #  version: '14.2'
+
+    name: "${{ matrix.machine.name }}"
+
+    steps:
+      - name: Checkout AppCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          path: AppCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Checkout fparser.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/fparser"
+          path: fparser
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Checkout CSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/CSXCAD"
+          path: CSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Checkout QCSXCAD.git
+        uses: actions/checkout@v4
+        with:
+          repository: "${{ github.repository_owner }}/QCSXCAD"
+          path: QCSXCAD
+          # checkout must be deep, not shallow.
+          # We need tags for "git describe", otherwise build fails.
+          fetch-depth: 0
+
+      - name: Test in FreeBSD ${{ matrix.machine.version }} ${{ matrix.machine.arch }}
+        uses: cross-platform-actions/action@v0.26.0
+        with:
+          cpu_count: 4
+          architecture: ${{ matrix.machine.arch }}
+          operating_system: ${{ matrix.machine.os }}
+          version: ${{ matrix.machine.version }}
+          run: |
+            echo "Install dependencies..."
+            sudo pkg install -y git cmake boost-libs tinyxml vtk9 hdf5 cgal \
+                                qt5-core qt5-gui qt5-opengl qt5-xml
+
+            export CXXFLAGS="-Wall -Wextra -Wno-error"
+            export NCPUS=$(sysctl -n hw.ncpu)
+
+            echo "Build and install fparser..."
+            cd $GITHUB_WORKSPACE/fparser
+            mkdir build && cd build
+            cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+            make -j$NCPUS && make install
+
+            echo "Build and install CSXCAD..."
+            # cmake may fail with "fatal: No names found, cannot describe anything."
+            # if it happens, check if you're using a shallow clone, or if it's a GitHub
+            # fork created with "Copy the master branch only". If so, you need to FULL
+            # fork or clone.
+            #
+            # MPI may also fail, but this error is not fatal. The real error is often
+            # the error above! There's no need to install MPI.
+            cd $GITHUB_WORKSPACE/CSXCAD
+            mkdir build && cd build
+            cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+            make -j$NCPUS && make install
+
+            echo "Build and install QCSXCAD..."
+            cd $GITHUB_WORKSPACE/QCSXCAD
+            mkdir build && cd build
+            cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+            make -j$NCPUS && make install
+
+            echo "Build and install AppCSXCAD..."
+            cd $GITHUB_WORKSPACE/AppCSXCAD
+            mkdir build && cd build
+            cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME/opt
+            make -j$NCPUS && make install

@@ -107,6 +107,21 @@ INCLUDE_DIRECTORIES( ${QCSXCAD_INCLUDE_DIR} )
 find_package(HDF5 COMPONENTS C HL REQUIRED)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
+# vtk
+find_package(VTK COMPONENTS vtkCommonCore QUIET)
+if (${VTK_VERSION} VERSION_GREATER "9")
+    find_package(VTK REQUIRED COMPONENTS
+      CommonCore IOXML InteractionWidgets RenderingLOD GUISupportQt
+      NO_MODULE
+    )
+else()
+    find_package(VTK REQUIRED COMPONENTS
+      vtkCommonCore vtkIOXML vtkInteractionWidgets vtkRenderingLOD vtkGUISupportQt
+      NO_MODULE
+    )
+    include(${VTK_USE_FILE})
+endif()
+
 # Both Qt6 support and the variable VTK_QT_VERSION are introduced in vTK
 # 9.1. Below VTK 9, we don't know the Qt version used by VTK, so we make
 # a guess and hope for the best. Since Qt6 is not officially supported
@@ -129,21 +144,6 @@ if (NOT DEFINED VTK_QT_VERSION)
     )
 endif()
 
-# vtk
-find_package(VTK COMPONENTS vtkCommonCore QUIET)
-if (${VTK_VERSION} VERSION_GREATER "9")
-    find_package(VTK REQUIRED COMPONENTS
-      CommonCore IOXML InteractionWidgets RenderingLOD GUISupportQt
-      NO_MODULE
-    )
-else()
-    find_package(VTK REQUIRED COMPONENTS
-      vtkCommonCore vtkIOXML vtkInteractionWidgets vtkRenderingLOD vtkGUISupportQt
-      NO_MODULE
-    )
-    include(${VTK_USE_FILE})
-endif()
-
 message(STATUS "Found package VTK. Using " ${VTK_VERSION})
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIR})
 
@@ -160,8 +160,6 @@ else()
     INCLUDE( ${QT_USE_FILE} )
     INCLUDE_DIRECTORIES(${QT_INCLUDES})
 endif()
-
-message(STATUS "Found package VTK. Using version " ${VTK_VERSION})
 
 SET(SOURCES
   main.cpp

@@ -1,3 +1,4 @@
+set(CMAKE_CXX_STANDARD 11)
 
 # define build type
 IF( DEFINED CMAKE_BUILD_TYPE )

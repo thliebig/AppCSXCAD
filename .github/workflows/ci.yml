@@ -130,6 +130,10 @@ jobs:
                                libhdf5-dev libtinyxml-dev \
                                qtbase5-dev
 
+            # VTK9 on newer distros (e.g. Ubuntu 26.04+) is built against Qt6.
+            # QCSXCAD requires Qt6Core5Compat when Qt6 is in use; install it if available.
+            apt-get install -y libqt6core5compat6-dev || true
+
             # VTK9 or VTK7, at least one must succeed (depending on Debian version)
             # VTK9,  VTK7, or VTK6, at least one must succeed (depending on Debian version)
             apt-get install -y libvtk9-dev libvtk9-qt-dev || \
@@ -312,8 +316,8 @@ jobs:
           # since 2011, TinyXML2 is not API-compatible. As a stop-gap,
           # build from source.
           #
-          # -L: follow redirect, REQUIRED!
-          curl -L https://sourceforge.net/projects/tinyxml/files/tinyxml/2.6.2/tinyxml_2_6_2.tar.gz -o tinyxml-2.6.2.tar.gz
+          # SourceForge is unreliable in CI; use the Debian mirror instead.
+          curl -L "https://deb.debian.org/debian/pool/main/t/tinyxml/tinyxml_2.6.2.orig.tar.gz" -o tinyxml-2.6.2.tar.gz
           tar -xf tinyxml-2.6.2.tar.gz
           cd tinyxml
 

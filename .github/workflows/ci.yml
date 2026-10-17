@@ -26,50 +26,29 @@ jobs:
           # name: OS name (only a name for humans to read).
           # libc: userland libc, "GNU" or "musl"
           #       (only a name for humans to read)
-          # ancient: true or false.
-          #          true: incompatible with GitHub's actions/checkout due to
-          #                node.js compatibility problem. Manual git checkout
-          #                required.
-          #          false: use standard GitHub's actions/checkout.
           # docker-image: string, image on DockerHub to use
-          - name: "CentOS 7"
-            libc: "GNU"
-            ancient: true
-            docker-image: "centos:7"
-
-          - name: "Ubuntu 14.04"
-            libc: "GNU"
-            ancient: true
-            docker-image: "ubuntu:14.04"
-
           - name: "Debian oldstable"
             libc: "GNU"
-            ancient: false
             docker-image: "debian:oldstable"
 
           - name: "Debian"
             libc: "GNU"
-            ancient: false
             docker-image: "debian:latest"
 
           - name: "Ubuntu"
             libc: "GNU"
-            ancient: false
             docker-image: "ubuntu:latest"
 
           - name: "Fedora"
             libc: "GNU"
-            ancient: false
             docker-image: "fedora:latest"
 
           - name: "AlmaLinux 8"
             libc: "GNU"
-            ancient: false
             docker-image: "almalinux:8"
 
           - name: "AlmaLinux 9"
             libc: "GNU"
-            ancient: false
             docker-image: "almalinux:9"
 
           # Waiting for upstream packages:
@@ -78,13 +57,11 @@ jobs:
           #
           #- name: "AlmaLinux Latest"
           #  libc: "GNU"
-          #  ancient: false
           #  docker-image: "almalinux:latest"
 
           # Alpine has no VTK Qt support, disabled.
           #- name: "Alpine"
           #  libc: "musl"
-          #  ancient: false
           #  docker-image: "alpine:latest"
 
     container:
@@ -130,73 +107,20 @@ jobs:
             apt-get install -y libqt6core5compat6-dev || true
 
             # VTK9 or VTK7, at least one must succeed (depending on Debian version)
-            # VTK9,  VTK7, or VTK6, at least one must succeed (depending on Debian version)
             apt-get install -y libvtk9-dev libvtk9-qt-dev || \
-                apt-get install -y libvtk7-dev libvtk7-qt-dev || \
-                  apt-get install -y libvtk6-dev
+                apt-get install -y libvtk7-dev libvtk7-qt-dev
 
-            if grep -q 'VERSION_ID="14.04"' /etc/os-release; then
-              # Ubuntu 14.04 has CMake 2 by default, but we require CMake 3
-              apt-get install -y cmake3
-            else
-              apt-get install -y cmake
-            fi
+            apt-get install -y cmake
           elif grep -q "ID=alpine" /etc/os-release; then
             apk add bash git \
                     build-base gmp-dev mpfr-dev cmake \
                     boost-dev tinyxml-dev hdf5-dev cgal-dev vtk-dev
-          elif [ -f /etc/centos-release ]; then
-            # IPv6 on GitHub Actions is broken, causing random network failures
-            # if a CDN rosolves to IPv6.
-            echo "ip_resolve=4" >> /etc/yum.conf
-
-            # CentOS repos are EOL and desupported
-            sed -i 's|^mirrorlist|#mirrorlist|g; s|^#baseurl|baseurl|g; s|mirror.centos.org|vault.centos.org|g' \
-                /etc/yum.repos.d/CentOS-Base.repo
-
-            yum install -y centos-release-scl || true
-            sed -i 's|^mirrorlist|#mirrorlist|g; s|^#baseurl|baseurl|g;
-                    s|^# baseurl|baseurl|g; s|mirror.centos.org|vault.centos.org|g' \
-                /etc/yum.repos.d/CentOS-SCLo-scl.repo \
-                /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
-            cat /etc/yum.repos.d/CentOS-SCLo-scl.repo
-            cat /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
-
-            yum install -y epel-release
-            yum install -y git
-            yum install -y gcc gcc-c++ gmp-devel mpfr-devel \
-                           cmake3 git tinyxml-devel vtk-devel hdf5-devel
-
-            # use cmake3 instead of default cmake2
-            alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 99
-
-            # To upgrade GCC, one can use GCC 7 from centos-release-scl, required by CGAL.
-            # Even GCC 10+ is provided.
-            # Not used for now, since openEMS is still compatible with GCC 4.8! But we may
-            # need it in the future.
-            # yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++
-            # alternatives --install /usr/local/bin/gcc gcc /opt/rh/devtoolset-7/root/usr/bin/gcc 99
-            # alternatives --install /usr/local/bin/g++ g++ /opt/rh/devtoolset-7/root/usr/bin/g++ 99
-
-            # This is a very old Boost incompatible with openEMS, but good enough
-            # for CGAL. See openEMS.git for the alternative solution.
-            yum install -y boost-devel
-
-            # not package on CentOS
-            # CGAL v4.14.3 was old enough to be compatible with GCC 4.8. Otherwise,
-            # you get: The compiler feature "cxx_decltype_auto" is not known
-            # to CXX compiler "GNU" version 4.8.5.
-            git clone $GITHUB_SERVER_URL/CGAL/cgal.git --depth=1 --branch=v4.14.3
-            cd cgal && mkdir build && cd build
-            cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/opt
-            make -j`nproc` && make install
           else
             echo "Unknown system!"
             exit 1
           fi
 
-      - if: ${{ ! matrix.os.ancient }}
-        name: Checkout AppCSXCAD.git
+      - name: Checkout AppCSXCAD.git
         uses: actions/checkout@v4
         with:
           path: AppCSXCAD
@@ -204,15 +128,13 @@ jobs:
           # We need tags for "git describe", otherwise build fails.
           fetch-depth: 0
 
-      - if: ${{ ! matrix.os.ancient }}
-        name: Checkout fparser.git
+      - name: Checkout fparser.git
         uses: actions/checkout@v4
         with:
           repository: "${{ github.repository_owner }}/fparser"
           path: fparser
 
-      - if: ${{ ! matrix.os.ancient }}
-        name: Checkout CSXCAD.git
+      - name: Checkout CSXCAD.git
         uses: actions/checkout@v4
         with:
           repository: "${{ github.repository_owner }}/CSXCAD"
@@ -221,8 +143,7 @@ jobs:
           # We need tags for "git describe", otherwise build fails.
           fetch-depth: 0
 
-      - if: ${{ ! matrix.os.ancient }}
-        name: Checkout QCSXCAD.git
+      - name: Checkout QCSXCAD.git
         uses: actions/checkout@v4
         with:
           repository: "${{ github.repository_owner }}/QCSXCAD"
@@ -230,28 +151,6 @@ jobs:
           # checkout must be deep, not shallow.
           # We need tags for "git describe", otherwise build fails.
           fetch-depth: 0
-
-      - if: ${{ matrix.os.ancient }}
-        name: Checkout AppCSXCAD.git (legacy system only)
-        run: |
-          git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git AppCSXCAD
-          cd $GITHUB_WORKSPACE/AppCSXCAD
-
-          git fetch --force $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git "+refs/heads/*:refs/remotes/origin/*"
-          git fetch --force $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git "+refs/pull/*/merge:refs/remotes/origin/pr/*"
-          git checkout $GITHUB_SHA
-
-      - if: ${{ matrix.os.ancient }}
-        name: Checkout fparser.git (legacy system only)
-        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/fparser.git
-
-      - if: ${{ matrix.os.ancient }}
-        name: Checkout CSXCAD.git (legacy system only)
-        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/CSXCAD.git
-
-      - if: ${{ matrix.os.ancient }}
-        name: Checkout QCSXCAD.git (legacy system only)
-        run: git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY_OWNER/QCSXCAD.git
 
       - name: Build and install fparser
         run: |

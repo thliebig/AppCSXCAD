@@ -84,21 +84,18 @@ jobs:
           echo 'export CXXFLAGS="-Wall -Wextra -Wno-error"' >> ~/.bash_profile
 
           if grep -q "ID=fedora" /etc/os-release; then
-            dnf install -y gcc gcc-c++ cmake boost-devel tinyxml-devel vtk-devel hdf5-devel \
-                           CGAL-devel vtk-qt
+            dnf install -y gcc gcc-c++ cmake tinyxml-devel vtk-devel hdf5-devel vtk-qt
           elif grep -q 'ID="almalinux"' /etc/os-release; then
             dnf install -y epel-release
             dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb
 
-            dnf install -y gcc gcc-c++ cmake boost-devel tinyxml-devel vtk-devel hdf5-devel \
-                           CGAL-devel vtk-qt
+            dnf install -y gcc gcc-c++ cmake tinyxml-devel vtk-devel hdf5-devel vtk-qt
           elif grep -q "ID=debian" /etc/os-release || grep -q "ID=ubuntu" /etc/os-release; then
             # retry failed downloads 3 times
             echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             apt-get update
 
             apt-get install -y build-essential git \
-                               libboost-all-dev libcgal-dev \
                                libhdf5-dev libtinyxml-dev \
                                qtbase5-dev
 
@@ -113,8 +110,8 @@ jobs:
             apt-get install -y cmake
           elif grep -q "ID=alpine" /etc/os-release; then
             apk add bash git \
-                    build-base gmp-dev mpfr-dev cmake \
-                    boost-dev tinyxml-dev hdf5-dev cgal-dev vtk-dev
+                    build-base cmake \
+                    tinyxml-dev hdf5-dev vtk-dev
           else
             echo "Unknown system!"
             exit 1
@@ -201,7 +198,7 @@ jobs:
           touch ~/.zprofile  # set environment variables here
           echo 'export CXXFLAGS="-Wall -Wextra -Wno-error"' >> ~/.zprofile
 
-          brew install git cmake boost hdf5 cgal vtk qt5compat
+          brew install git cmake hdf5 vtk qt5compat
 
           echo "export NCPUS=$(sysctl -n hw.ncpu)" >> ~/.zprofile
           source ~/.zprofile
@@ -386,7 +383,7 @@ jobs:
           version: ${{ matrix.machine.version }}
           run: |
             echo "Install dependencies..."
-            sudo pkg install -y git cmake boost-libs tinyxml vtk9 hdf5 cgal \
+            sudo pkg install -y git cmake tinyxml vtk9 hdf5 \
                                 qt5-core qt5-gui qt5-opengl qt5-xml
 
             export CXXFLAGS="-Wall -Wextra -Wno-error"
